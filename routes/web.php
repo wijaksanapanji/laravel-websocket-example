@@ -27,4 +27,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
         Route::get('/posts/{id}/{status}', 'DashboardController@updateStatus');
     });
+
+    Route::prefix('api')->group(function () {
+        Route::post('notifications/subscribe', 'NotificationController@subscribe');
+        Route::post('notifications/unsubscribe', 'NotificationController@unsubscribe');
+    });
 });

@@ -4,12 +4,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "{!! env('ONESIGNAL_APP_ID') !!}",
+                notifyButton: {
+                    enable: true,
+                },
+                allowLocalhostAsSecureOrigin: true,
+            });
+            OneSignal.showSlidedownPrompt();
+        });
+    </script>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
@@ -88,6 +102,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"
         integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA=="
         crossorigin="anonymous"></script>
+    <script>
+        function subcscribe(token) {
+                $.ajax({
+                    url: "{!! URL::to('/api/notifications/subscribe') !!}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF_TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        token: token
+                    }
+                }).done(function(e) {
+                    console.log(e)
+                });
+            }
+
+            function unsubscribe(token) {
+                $.ajax({
+                    url: "{!! URL::to('/api/notifications/unsubscribe') !!}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF_TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        token: token
+                    }
+                }).done(function(e) {
+                    console.log(e)
+                });
+            }
+
+            OneSignal.on('subscriptionChange', function(isSubscribed) {
+                console.log("The user's subscription state is now:", isSubscribed);
+                OneSignal.getUserId(function(userId) {
+                    console.log("OneSignal User ID:", userId);
+                    if(isSubscribed) {
+                        subcscribe(userId);
+                    } else {
+                        unsubscribe(userId);
+                    }
+                });
+            });
+    </script>
     @yield('script')
 </body>
 

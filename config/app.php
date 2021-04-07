@@ -165,6 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
+        NotificationChannels\OneSignal\OneSignalServiceProvider::class,
 
         /*
          * Application Service Providers...
