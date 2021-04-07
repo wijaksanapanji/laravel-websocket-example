@@ -25,7 +25,13 @@
 
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Post List</div>
+                <div class="card-header">
+                Post List
+                <div class="float-right">
+                    <input type="checkbox" name="notification-checkbox" id="notification-checkbox">
+                    Allow notification?
+                    </div>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <thead>
@@ -53,14 +59,29 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+<audio src="" muted id="notification" class="d-none"></audio>
 @endsection
 
 @section('script')
 <script>
     $(document).ready(function() {
+        $('#notification-checkbox').change(function() {
+            const audio = document.querySelector('#notification');
+            if($(this).prop('checked')) {
+                audio.src = "{!! asset('audio/notification.mp3') !!}";
+                audio.muted = false;
+                return;
+            }
+            audio.muted = true;
+        });
+
+        function playNotificationSound() {
+            const audio = document.querySelector('#notification');
+            audio.play();
+        }
+
         function updateStatus(post) {
             const span = $(`span[data-post-status="${post.id}"]`);
             span.text(post.status);
@@ -80,12 +101,15 @@
                     message: 'Your post has been rejected!'
                 });
             }
+
+            playNotificationSound();
         }
 
         Echo.private('post-status.{{ auth()->user()->id }}') 
             .listen('PostStatusUpdated', (e) => {
                 updateStatus(e.post);
             });
+
     });
 </script>
 @endsection
